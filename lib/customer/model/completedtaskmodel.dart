@@ -1,18 +1,17 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ServiceRequestList {
+class CompltedTask {
   String? status;
   int? errorCode;
   String? message;
   List<Data>? data;
 
-  ServiceRequestList({this.status, this.errorCode, this.message, this.data});
+  CompltedTask({this.status, this.errorCode, this.message, this.data});
 
-  ServiceRequestList.fromJson(Map<String, dynamic> json) {
+  CompltedTask.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     errorCode = json['error_code'];
     message = json['message'];
@@ -40,22 +39,32 @@ class Data {
   int? id;
   String? note;
   String? status;
+  int? taskId;
   int? statusId;
   int? idProduct;
+  String? serviceIssue;
   String? brand;
   String? createdDate;
   String? createdTime;
+  int? taskAcceptCustomer;
+  int? customerReview;
+  String? customerNote;
   List<Files>? files;
 
   Data({
     this.id,
     this.note,
     this.status,
+    this.taskId,
     this.statusId,
     this.idProduct,
+    this.serviceIssue,
     this.brand,
     this.createdDate,
     this.createdTime,
+    this.taskAcceptCustomer,
+    this.customerReview,
+    this.customerNote,
     this.files,
   });
 
@@ -63,11 +72,16 @@ class Data {
     id = json['id'];
     note = json['note'];
     status = json['status'];
+    taskId = json['task_id'];
     statusId = json['status_id'];
     idProduct = json['id_product'];
+    serviceIssue = json['service_issue'];
     brand = json['brand'];
     createdDate = json['created_date'];
     createdTime = json['created_time'];
+    taskAcceptCustomer = json['task_accept_customer'];
+    customerReview = json['customer_review'];
+    customerNote = json['customer_note'];
     if (json['files'] != null) {
       files = <Files>[];
       json['files'].forEach((v) {
@@ -81,11 +95,16 @@ class Data {
     data['id'] = this.id;
     data['note'] = this.note;
     data['status'] = this.status;
+    data['task_id'] = this.taskId;
     data['status_id'] = this.statusId;
     data['id_product'] = this.idProduct;
+    data['service_issue'] = this.serviceIssue;
     data['brand'] = this.brand;
     data['created_date'] = this.createdDate;
     data['created_time'] = this.createdTime;
+    data['task_accept_customer'] = this.taskAcceptCustomer;
+    data['customer_review'] = this.customerReview;
+    data['customer_note'] = customerNote;
     if (this.files != null) {
       data['files'] = this.files!.map((v) => v.toJson()).toList();
     }
@@ -115,53 +134,53 @@ class Files {
   }
 }
 
-// class ServiceRequestListProvider with ChangeNotifier {
-//   bool _isLoading = false;
-//   String? _errorMessage;
-//   List<Data> _requests = [];
+class CompletedTaskService {
+  static Future<CompltedTask?> fetchCompletedTasks() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
 
-//   bool get isLoading => _isLoading;
-//   String? get errorMessage => _errorMessage;
-//   List<Data> get requests => _requests;
+      final url = Uri.parse(
+        "https://pms.gisaxiom.com/api/customers/service/requests/completed",
+      );
 
-//   Future<void> fetchServiceRequests() async {
-//     _isLoading = true;
-//     _errorMessage = null;
-//     notifyListeners();
+      final response = await http.get(
+        url,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
 
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       String? token = prefs.getString('token');
+      if (response.statusCode == 200) {
+        final jsonBody = jsonDecode(response.body);
+        return CompltedTask.fromJson(jsonBody);
+      } else {
+        throw Exception("Failed: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+}
 
-//       if (token == null) {
-//         _errorMessage = "⚠️ No token found in SharedPreferences";
-//         _isLoading = false;
-//         notifyListeners();
-//         return;
-//       }
+class CompletedTaskProvider with ChangeNotifier {
+  bool isLoading = false;
+  CompltedTask? completedTask;
+  String? errorMessage;
 
-//       final response = await http.get(
-//         Uri.parse("https://pms.gisaxiom.com/api/customers/service/requests"),
-//         headers: {
-//           "Authorization": "Bearer $token",
-//           "Accept": "application/json",
-//         },
-//       );
+  Future<void> loadCompletedTasks() async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
 
-//       if (response.statusCode == 200) {
-//         final jsonResponse = jsonDecode(response.body);
-//         final model = ServiceRequestList.fromJson(jsonResponse);
-//         _requests = model.data ?? [];
-//         print("✅ Fetched service requests ${_requests}");
-//       } else {
-//         _errorMessage =
-//             "Error ${response.statusCode}: ${response.reasonPhrase}";
-//       }
-//     } catch (e) {
-//       _errorMessage = "❌ Exception: $e";
-//     }
+    try {
+      completedTask = await CompletedTaskService.fetchCompletedTasks();
+    } catch (e) {
+      errorMessage = e.toString();
+    }
 
-//     _isLoading = false;
-//     notifyListeners();
-//   }
-// }
+    isLoading = false;
+    notifyListeners();
+  }
+}

@@ -14,6 +14,7 @@ class RequestCard extends StatefulWidget {
   final bool ratingshow;
   final bool shownotapprove;
   final bool showreviewpagelist;
+  final int rating;
 
   const RequestCard({
     super.key,
@@ -27,6 +28,7 @@ class RequestCard extends StatefulWidget {
     this.ratingshow = false,
     this.shownotapprove = false,
     this.showreviewpagelist = false,
+    this.rating = 0,
   });
 
   @override
@@ -290,35 +292,50 @@ class _RequestCardState extends State<RequestCard> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Icon(
-                  Icons.star_rounded,
-                  size: 20,
-                  color: AppColors.amber,
-                ),
-                const Icon(
-                  Icons.star_rounded,
-                  size: 20,
-                  color: AppColors.amber,
-                ),
-                const Icon(
-                  Icons.star_rounded,
-                  size: 20,
-                  color: AppColors.amber,
-                ),
-                const Icon(
-                  Icons.star_rounded,
-                  size: 20,
-                  color: AppColors.amber,
-                ),
-                Icon(
-                  Icons.star_rounded,
-                  size: 20,
-                  color: AppColors.greyShade300,
-                ),
+                // const Icon(
+                //   Icons.star_rounded,
+                //   size: 20,
+                //   color: AppColors.amber,
+                // ),
+                // const Icon(
+                //   Icons.star_rounded,
+                //   size: 20,
+                //   color: AppColors.amber,
+                // ),
+                // const Icon(
+                //   Icons.star_rounded,
+                //   size: 20,
+                //   color: AppColors.amber,
+                // ),
+                // const Icon(
+                //   Icons.star_rounded,
+                //   size: 20,
+                //   color: AppColors.amber,
+                // ),
+                // Icon(
+                //   Icons.star_rounded,
+                //   size: 20,
+                //   color: AppColors.greyShade300,
+                // ),
+                buildRatingStars(widget.rating),
               ],
             ),
         ],
       ),
     );
   }
+}
+
+Widget buildRatingStars(int rating) {
+  const int maxStars = 5;
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: List.generate(maxStars, (index) {
+      return Icon(
+        Icons.star_rounded,
+        size: 20,
+        color: index < rating ? AppColors.amber : AppColors.greyShade300,
+      );
+    }),
+  );
 }

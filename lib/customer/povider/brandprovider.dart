@@ -9,11 +9,11 @@ class BrandProvider with ChangeNotifier {
   SelectBrand? get brands => _brands;
   bool get loading => _loading;
 
-  Future<void> getBrands() async {
+  Future<void> getBrands(BuildContext context) async {
     _loading = true;
     notifyListeners();
 
-    _brands = await BrandService().fetchBrands();
+    _brands = await BrandService().fetchBrands(context);
 
     _loading = false;
     notifyListeners();

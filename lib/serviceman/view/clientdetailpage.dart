@@ -804,6 +804,26 @@ class _WorkDetailsState extends State<WorkDetails> {
                   ),
                 ],
               ),
+              if (widget.task.stage != null &&
+                  widget.task.stage!.trim().isNotEmpty)
+                const Divider(color: Colors.grey, thickness: 1, height: 20),
+              if (widget.task.stage != null &&
+                  widget.task.stage!.trim().isNotEmpty)
+                Row(
+                  children: [
+                    const Text('Task Stage:'),
+                    const SizedBox(width: 10),
+                    Text(
+                      widget.task.taskType?.isNotEmpty ?? false
+                          ? widget.task.stage!
+                          : "Not specified",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
@@ -840,9 +860,10 @@ class _WorkDetailsState extends State<WorkDetails> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+
                 Padding(
                   padding: const EdgeInsets.only(
-                    top: 8,
+                    top: 4,
                     left: 11,
                     right: 11,
                     bottom: 11,
@@ -856,6 +877,31 @@ class _WorkDetailsState extends State<WorkDetails> {
                     softWrap: true,
                   ),
                 ),
+                if (widget.task.customerServiceRequest != null &&
+                    widget.task.customerServiceRequest!.trim().isNotEmpty)
+                  const Divider(
+                    color: Color.fromARGB(255, 177, 175, 175),
+                    thickness: 1,
+                    height: 20,
+                  ),
+                if (widget.task.customerServiceRequest != null &&
+                    widget.task.customerServiceRequest!.trim().isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 8,
+                      left: 11,
+                      right: 11,
+                      bottom: 11,
+                    ),
+                    child: Text(
+                      widget.task.customerServiceRequest ?? "",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w300,
+                      ),
+                      softWrap: true,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -1372,78 +1418,158 @@ class _WorkDetailsState extends State<WorkDetails> {
   //     }
   //   }
   // }
+  // void _submitForm() async {
+  //   print("fgdgdgdgdgdggdd");
+  //   // Validate all required fields first
+  //   if (!(_formKey.currentState?.validate() ?? false) ||
+  //       _selectedFileType == null ||
+  //       _notesController.text.isEmpty ||
+  //       uploadedFiles.isEmpty) {
+  //     // ... (keep existing validation messages)
+  //     return;
+  //   }
+
+  //   try {
+  //     // Get the appropriate task ID based on task type
+  //     int taskId;
+  //     int? subTaskId;
+
+  //     if (widget.task.taskType == "Installation") {
+  //       // For installation tasks, use subtask ID and validate phase
+  //       // if (selectedPhase != "End") {
+  //       //   ScaffoldMessenger.of(context).showSnackBar(
+  //       //     const SnackBar(
+  //       //       content: Text('Task can only be submitted in "End" phase'),
+  //       //       backgroundColor: Colors.red,
+  //       //     ),
+  //       //   );
+  //       //   return;
+  //       // }
+  //       subTaskId = widget.task.subTasks?[0].subTaskId;
+  //       taskId = widget.task.subTasks?[0].taskId ?? 0;
+  //     } else {
+  //       // For service tasks, use main task ID
+  //       subTaskId = null;
+  //       taskId = widget.task.id ?? 0;
+  //     }
+
+  //     if (taskId == 0 ||
+  //         (widget.task.taskType == "Installation" && subTaskId == null)) {
+  //       throw Exception('Invalid task ID');
+  //     }
+
+  //     // Show loading indicator
+  //     showDialog(
+  //       context: context,
+  //       barrierDismissible: false,
+  //       builder: (context) => const Center(child: CircularProgressIndicator()),
+  //     );
+
+  //     // Call the appropriate API
+  //     bool success;
+  //     // if (widget.task.taskType == "Installation") {
+  //     //   success = await completePhase1Task(
+  //     //     taskId,
+  //     //     subTaskId!,
+  //     //     selectedFileId!,
+  //     //     uploadedFiles,
+  //     //     _notesController.text,
+  //     //     context,
+  //     //   );
+  //     // } else {
+  //     //   success = await completePhase2Task(
+  //     //     widget.task.id ?? 0,
+  //     //     selectedFileId!,
+  //     //     uploadedFiles,
+  //     //     _notesController.text,
+  //     //     context,
+  //     //   );
+  //     // }
+  //     success = await completePhase1Task(
+  //       taskId,
+  //       subTaskId!,
+  //       selectedFileId!,
+  //       uploadedFiles,
+  //       _notesController.text,
+  //       context,
+  //     );
+
+  //     // Remove loading indicator
+  //     if (mounted) Navigator.of(context).pop();
+
+  //     // Handle success
+  //     if (success && mounted) {
+  //       Navigator.of(context).pop(true); // Pass true to indicate refresh needed
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       print(e);
+  //       Navigator.of(context).pop();
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Errorssssssssssssss: ${e.toString()}'),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
   void _submitForm() async {
-    // Validate all required fields first
     if (!(_formKey.currentState?.validate() ?? false) ||
         _selectedFileType == null ||
         _notesController.text.isEmpty ||
-        uploadedFiles.isEmpty) {
-      // ... (keep existing validation messages)
+        uploadedFiles.isEmpty ||
+        selectedFileId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please fill all required fields."),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
     try {
-      // Get the appropriate task ID based on task type
       int taskId;
       int? subTaskId;
 
       if (widget.task.taskType == "Installation") {
-        // For installation tasks, use subtask ID and validate phase
-        if (selectedPhase != "End") {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Task can only be submitted in "End" phase'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
+        // Ensure subTasks is not null or empty
+        if (widget.task.subTasks == null || widget.task.subTasks!.isEmpty) {
+          throw Exception("No subtask found for Installation task");
         }
-        subTaskId = widget.task.subTasks?[0].subTaskId;
-        taskId = widget.task.subTasks?[0].taskId ?? 0;
+
+        subTaskId = widget.task.subTasks![0].subTaskId;
+        taskId = widget.task.subTasks![0].taskId ?? 0;
       } else {
-        // For service tasks, use main task ID
+        subTaskId = null;
         taskId = widget.task.id ?? 0;
       }
 
       if (taskId == 0 ||
           (widget.task.taskType == "Installation" && subTaskId == null)) {
-        throw Exception('Invalid task ID');
+        throw Exception('Invalid task or subtask ID');
       }
 
-      // Show loading indicator
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      // Call the appropriate API
-      bool success;
-      if (widget.task.taskType == "Installation") {
-        success = await completePhase1Task(
-          taskId,
-          subTaskId!,
-          selectedFileId!,
-          uploadedFiles,
-          _notesController.text,
-          context,
-        );
-      } else {
-        success = await completePhase2Task(
-          widget.task.id ?? 0,
-          selectedFileId!,
-          uploadedFiles,
-          _notesController.text,
-          context,
-        );
-      }
+      bool success = await completePhase1Task(
+        taskId,
+        subTaskId ?? 0, // safe fallback instead of `!`
+        selectedFileId!, // safe now, already validated above
+        uploadedFiles,
+        _notesController.text,
+        context,
+      );
 
-      // Remove loading indicator
       if (mounted) Navigator.of(context).pop();
 
-      // Handle success
       if (success && mounted) {
-        Navigator.of(context).pop(true); // Pass true to indicate refresh needed
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
       if (mounted) {
@@ -1511,13 +1637,118 @@ class _WorkDetailsState extends State<WorkDetails> {
     );
   }
 
+  // Widget _buildFileContent(List<TaskFiles> taskFiles) {
+  //   if (taskFiles.length == 1 &&
+  //       taskFiles.first.name?.toLowerCase().endsWith('.jpg') == true) {
+  //     return GestureDetector(
+  //       onTap: () => _showZoomableImageDialog(context, taskFiles.first),
+  //       child: Image.network(
+  //         "${taskFiles.first.name}",
+  //         fit: BoxFit.cover,
+  //         loadingBuilder: (context, child, loadingProgress) {
+  //           if (loadingProgress == null) return child;
+  //           return Center(
+  //             child: CircularProgressIndicator(
+  //               value:
+  //                   loadingProgress.expectedTotalBytes != null
+  //                       ? loadingProgress.cumulativeBytesLoaded /
+  //                           loadingProgress.expectedTotalBytes!
+  //                       : null,
+  //             ),
+  //           );
+  //         },
+  //         errorBuilder: (context, error, stackTrace) {
+  //           return const Center(
+  //             child: Column(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 Icon(Icons.broken_image, size: 40),
+  //                 SizedBox(height: 8),
+  //                 Text('Failed to load image'),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       ),
+  //     );
+  //   }
+
+  //   final imageFiles =
+  //       taskFiles.where((file) {
+  //         final fileName = file.name?.toLowerCase() ?? '';
+  //         return fileName.endsWith('.jpg') ||
+  //             fileName.endsWith('.jpeg') ||
+  //             fileName.endsWith('.png');
+  //       }).toList();
+
+  //   if (imageFiles.isEmpty) {
+  //     return const SizedBox.shrink(); // don’t show anything if no images
+  //   }
+
+  //   return ListView.builder(
+  //     //padding: const EdgeInsets.all(8),
+  //     //itemCount: imageFiles.length,
+  //     itemBuilder: (context, index) {
+  //       final file = imageFiles[index];
+  //       final fileName = file.name?.split('/').last ?? 'file';
+
+  //       return InkWell(
+  //         borderRadius: BorderRadius.circular(8),
+  //         onTap: () => _showZoomableImageDialog(context, file),
+  //         child: Image.network(
+  //           file.name ?? '',
+  //           // height: 100,
+  //           fit: BoxFit.cover,
+  //           loadingBuilder: (context, child, loadingProgress) {
+  //             if (loadingProgress == null) return child;
+  //             return Center(
+  //               child: CircularProgressIndicator(
+  //                 value:
+  //                     loadingProgress.expectedTotalBytes != null
+  //                         ? loadingProgress.cumulativeBytesLoaded /
+  //                             loadingProgress.expectedTotalBytes!
+  //                         : null,
+  //               ),
+  //             );
+  //           },
+  //           errorBuilder: (context, error, stackTrace) {
+  //             return const Center(
+  //               child: Column(
+  //                 mainAxisAlignment: MainAxisAlignment.center,
+  //                 children: [
+  //                   Icon(Icons.broken_image, size: 40),
+  //                   SizedBox(height: 8),
+  //                   Text('Failed to load image'),
+  //                 ],
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
   Widget _buildFileContent(List<TaskFiles> taskFiles) {
-    if (taskFiles.length == 1 &&
-        taskFiles.first.name?.toLowerCase().endsWith('.jpg') == true) {
+    // filter only images
+    final imageFiles =
+        taskFiles.where((file) {
+          final fileName = file.name?.toLowerCase() ?? '';
+          return fileName.endsWith('.jpg') ||
+              fileName.endsWith('.jpeg') ||
+              fileName.endsWith('.png');
+        }).toList();
+
+    if (imageFiles.isEmpty) {
+      return const SizedBox.shrink(); // no images → show nothing
+    }
+
+    // case 1: only one image
+    if (imageFiles.length == 1) {
+      final file = imageFiles.first;
       return GestureDetector(
-        onTap: () => _showZoomableImageDialog(context, taskFiles.first),
+        onTap: () => _showZoomableImageDialog(context, file),
         child: Image.network(
-          "https://kuche7.devcom.live/public/storage/${taskFiles.first.name}",
+          file.name ?? '',
           fit: BoxFit.cover,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
@@ -1547,40 +1778,26 @@ class _WorkDetailsState extends State<WorkDetails> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: taskFiles.length,
+    // case 2: multiple images → show grid
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2, // 2 images per row
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: imageFiles.length,
       itemBuilder: (context, index) {
-        final file = taskFiles[index];
-        final fileName = file.name?.split('/').last ?? 'file';
-        final isImage =
-            fileName.toLowerCase().endsWith('.jpg') ||
-            fileName.toLowerCase().endsWith('.png') ||
-            fileName.toLowerCase().endsWith('.jpeg');
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap:
-                () => isImage ? _showZoomableImageDialog(context, file) : null,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Icon(
-                    isImage ? Icons.image : Icons.insert_drive_file,
-                    color: Colors.blue,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(fileName, overflow: TextOverflow.ellipsis),
-                  ),
-                  if (isImage) const Icon(Icons.zoom_in, color: Colors.grey),
-                ],
-              ),
-            ),
+        final file = imageFiles[index];
+        return GestureDetector(
+          onTap: () => _showZoomableImageDialog(context, file),
+          child: Image.network(
+            file.name ?? '',
+            fit: BoxFit.cover,
+            errorBuilder:
+                (context, error, stackTrace) =>
+                    const Icon(Icons.broken_image, size: 40),
           ),
         );
       },
@@ -1601,10 +1818,7 @@ class _WorkDetailsState extends State<WorkDetails> {
             child: Stack(
               children: [
                 Center(
-                  child: Image.network(
-                    "https://kuche7.devcom.live/public/storage/${file.name}",
-                    fit: BoxFit.contain,
-                  ),
+                  child: Image.network("${file.name}", fit: BoxFit.contain),
                 ),
                 Positioned(
                   top: 10,

@@ -19,6 +19,7 @@ class ServiceRequestProvider with ChangeNotifier {
     required List<File> videos,
     required String note, // 👈 added
     required int idProduct, // 👈 added
+    required String serviceissue, // 👈 added
   }) async {
     _loading = true;
     _error = null;
@@ -31,6 +32,7 @@ class ServiceRequestProvider with ChangeNotifier {
         videos: videos,
         note: note,
         idProduct: idProduct,
+        serviceissue: serviceissue, // 👈 added
       );
       if (res != null) {
         _response = res;

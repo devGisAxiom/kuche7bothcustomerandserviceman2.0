@@ -167,7 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     Future.microtask(
-      () => Provider.of<BrandProvider>(context, listen: false).getBrands(),
+      () =>
+          Provider.of<BrandProvider>(context, listen: false).getBrands(context),
     );
   }
 

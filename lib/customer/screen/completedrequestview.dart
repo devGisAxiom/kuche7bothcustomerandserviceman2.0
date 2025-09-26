@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_application_1/customer/povider/reviewacceptprovider.dart';
 import 'package:flutter_application_1/customer/povider/themeprovider.dart';
+import 'package:flutter_application_1/customer/screen/requestdetaildailog.dart';
 import 'package:flutter_application_1/customer/screen/reviewlistpage.dart';
 import 'package:flutter_application_1/core/utils/appcolor.dart';
 import 'package:flutter_application_1/customer/widget/attachmenttile.dart';
+import 'package:flutter_application_1/customer/widget/audioplayer.dart';
 // import 'package:flutter_application_1/customer/widget/attachmenttile.dart';
 import 'package:flutter_application_1/customer/widget/customappbar.dart';
 import 'package:flutter_application_1/customer/widget/loginbutton.dart';
@@ -11,7 +15,13 @@ import 'package:provider/provider.dart';
 
 class CompletedrequestView extends StatefulWidget {
   final bool show;
-  const CompletedrequestView({super.key, this.show = false});
+  final dynamic task;
+
+  const CompletedrequestView({
+    super.key,
+    this.show = false,
+    required this.task,
+  });
 
   @override
   State<CompletedrequestView> createState() => _CompletedrequestViewState();
@@ -19,14 +29,19 @@ class CompletedrequestView extends StatefulWidget {
 
 class _CompletedrequestViewState extends State<CompletedrequestView> {
   bool isChecked = false;
+  int currentRating = 0;
+  final TextEditingController _noteController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    // stores selected star count
+
     return Scaffold(
       backgroundColor: theme.colorScheme.primary,
       body: SingleChildScrollView(
+        //  padding: const EdgeInsets.only(bottom: 120), // adjustable padding
         child: Column(
           children: [
             CommonAppBar(
@@ -75,7 +90,7 @@ class _CompletedrequestViewState extends State<CompletedrequestView> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'K7-1023',
+                            'K7-${widget.task.id ?? ""}',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -179,7 +194,7 @@ class _CompletedrequestViewState extends State<CompletedrequestView> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      "Cupboard Door Brocken.",
+                      '${widget.task.note ?? ""}',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
@@ -214,7 +229,7 @@ class _CompletedrequestViewState extends State<CompletedrequestView> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Kuche7 Cupboard',
+                        '${widget.task.brand ?? ""}',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
@@ -227,135 +242,376 @@ class _CompletedrequestViewState extends State<CompletedrequestView> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Text(
-                        "Review",
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          height: 1.0,
-                          letterSpacing: -0.3,
-                          color: AppColors.grey545562,
+
+                  if (widget.task.customerReview == null)
+                    Row(
+                      children: [
+                        Text(
+                          "Rating",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            height: 1.0,
+                            letterSpacing: -0.3,
+                            color: AppColors.grey545562,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Icon(
-                        Icons.star_rounded,
-                        size: 20,
-                        color: AppColors.amber,
-                      ),
-                      const Icon(
-                        Icons.star_rounded,
-                        size: 20,
-                        color: AppColors.amber,
-                      ),
-                      const Icon(
-                        Icons.star_rounded,
-                        size: 20,
-                        color: AppColors.amber,
-                      ),
-                      const Icon(
-                        Icons.star_rounded,
-                        size: 20,
-                        color: AppColors.amber,
-                      ),
-                      Icon(
-                        Icons.star_rounded,
-                        size: 20,
-                        color: AppColors.greyShade300,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    width: double.infinity,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.greyShade300),
-                      borderRadius: BorderRadius.circular(6),
+                        const SizedBox(width: 12),
+                        ...List.generate(5, (index) {
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (currentRating == index + 1) {
+                                  // unselect only the last star
+                                  currentRating = index;
+                                } else {
+                                  // select up to this star
+                                  currentRating = index + 1;
+                                }
+                              });
+                            },
+                            child: Icon(
+                              Icons.star_rounded,
+                              size: 20,
+                              color:
+                                  index < currentRating
+                                      ? AppColors.amber
+                                      : AppColors.greyShade300,
+                            ),
+                          );
+                        }),
+                      ],
                     ),
-                    child: Text(
-                      "Cupboard Door Brocken.",
+                  if (widget.task.customerReview != null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Rating",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            height: 1.0,
+                            letterSpacing: -0.3,
+                            color: AppColors.grey545562,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+
+                        // 👇 Spread the List.generate into the children list
+                        ...List.generate(5, (index) {
+                          int rating =
+                              widget.task.customerReview ?? 0; // null-safe
+                          return Icon(
+                            Icons.star_rounded,
+                            size: 20,
+                            color:
+                                index < rating
+                                    ? AppColors.amber
+                                    : AppColors.greyShade300,
+                          );
+                        }),
+                      ],
+                    ),
+
+                  const SizedBox(height: 20),
+                  // const SizedBox(height: 20),
+                  if (widget.task.customerNote != null &&
+                      widget.task.customerNote!.isNotEmpty)
+                    Text(
+                      "Review",
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         height: 1.0,
-                        letterSpacing: 0,
-                        color: AppColors.gry,
+                        letterSpacing: -0.3,
+                        color: AppColors.grey545562,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20), // space above button
-                  PrimaryButton(
-                    label: 'Submit',
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => Reviewlistpage(),
+                  if (widget.task.customerNote != null &&
+                      widget.task.customerNote!.isNotEmpty)
+                    const SizedBox(height: 16),
+                  if (widget.task.customerNote != null &&
+                      widget.task.customerNote!.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      width: double.infinity,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.greyShade300),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        widget.task.customerNote ?? "NO",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          height: 1.0,
+                          letterSpacing: 0,
+                          color: AppColors.gry,
                         ),
-                      );
-                    },
-                    backgroundColor: theme.colorScheme.primary,
-                  ),
-
-                  const SizedBox(height: 20),
-                  Text(
-                    "Attachment",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      height: 1.0,
-                      letterSpacing: -0.3,
-                      color: AppColors.black000, //const Color(0xFF000108),
+                      ),
                     ),
-                  ),
+                  if (widget.task.customerNote == null &&
+                      widget.task.taskAcceptCustomer == 0)
+                    Text(
+                      "Review",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        height: 1.0,
+                        letterSpacing: -0.3,
+                        color: AppColors.grey545562,
+                      ),
+                    ),
+                  if (widget.task.customerNote == null &&
+                      widget.task.taskAcceptCustomer == 0)
+                    const SizedBox(height: 16),
+                  if (widget.task.customerNote == null &&
+                      widget.task.taskAcceptCustomer == 0)
+                    Container(
+                      width: double.infinity,
+                      constraints: BoxConstraints(
+                        minHeight: 80, // 👈 Minimum height
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.greyShade300),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: TextField(
+                        controller: _noteController,
+                        style: const TextStyle(color: Colors.black),
+                        maxLines: null, // 👈 allows expansion
+                        keyboardType: TextInputType.multiline,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.all(8),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  // if (!widget.show)
+                  //if (widget.task.taskAcceptCustomer == 0)
+                  if (widget.task.customerNote == null ||
+                      widget.task.taskAcceptCustomer == 0)
+                    const SizedBox(height: 20), // space above button
+                  // if (!widget.show)
+                  //if (widget.task.taskAcceptCustomer == 0)
+                  if (widget.task.customerNote == null ||
+                      widget.task.taskAcceptCustomer == 0)
+                    Consumer<TaskProvider>(
+                      builder: (context, taskProvider, child) {
+                        // Schedule SnackBar for after build
+                        if (taskProvider.isLoading == true) {
+                          SchedulerBinding.instance.addPostFrameCallback((_) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                behavior:
+                                    SnackBarBehavior
+                                        .floating, // optional, makes it float
+                                margin: const EdgeInsets.all(16),
+                                content: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      "Please wait...",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ],
+                                ),
+                                // duration: const Duration(minutes: 1),
+                              ),
+                            );
+                          });
+                        }
+                        // else {
+                        //   SchedulerBinding.instance.addPostFrameCallback((_) {
+                        //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        //   });
+                        // }
 
-                  GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1,
-                    shrinkWrap: true, // Important
-                    physics: const NeverScrollableScrollPhysics(), // Important
-                    children: [
-                      // attachmentTile(
-                      //   context,
-                      //   "assets/kucheproduct.jpg",
-                      //   "Kitchen1.jpg",
-                      //   isVideo: false,
-                      // ),
-                      // attachmentTile(
-                      //   context,
-                      //   "assets/kucheproduct.jpg",
-                      //   "Kitchen2.jpg",
-                      //   isVideo: false,
+                        return PrimaryButton(
+                          label: 'Submit',
+                          onPressed: () async {
+                            final note =
+                                (widget.task.customerNote != null &&
+                                        widget.task.customerNote!.isNotEmpty)
+                                    ? widget.task.customerNote
+                                    : _noteController.text;
 
-                      // attachmentTile(
+                            final tick = isChecked ? 1 : 0;
 
-                      //   context,
-                      //   "assets/kucheproduct.jpg",
-                      //   "Kitchen1Mp4",
-                      //   isVideo: true,
-                      // ),
-                      // attachmentTile(
-                      //   context,
-                      //   "assets/kucheproduct.jpg",
-                      //   "Kitchen2Mp4",
-                      //   isVideo: true,
-                      // ),
-                    ],
-                  ),
-                  const SizedBox(height: 20), // space above button
-                  PrimaryButton(
-                    label: 'Cancel Request',
-                    onPressed: () {},
-                    backgroundColor: AppColors.grey7F,
-                  ),
+                            final review =
+                                (widget.task.customerReview != null)
+                                    ? widget.task.customerReview.toString()
+                                    : currentRating.toString();
+
+                            await taskProvider.acceptTask(
+                              taskId: widget.task?.taskId?.toString() ?? "",
+                              status: tick.toString(),
+                              note: note,
+                              customerReview: review,
+                            );
+
+                            // Handle result
+                            if (taskProvider.errorMessage == null) {
+                              Navigator.pop(context, true);
+                              // ScaffoldMessenger.of(context).showSnackBar(
+                              //   SnackBar(
+                              //     content: Text("Submitted Successfully "),
+                              //   ),
+                              // );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Submitted Successfully",
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                    ),
+                                  ),
+                                  backgroundColor: const Color.fromARGB(
+                                    255,
+                                    9,
+                                    101,
+                                    12,
+                                  ),
+                                  behavior:
+                                      SnackBarBehavior
+                                          .floating, // optional, makes it float
+                                  margin: const EdgeInsets.all(
+                                    16,
+                                  ), // optional, spacing from edges
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.red,
+                                  behavior:
+                                      SnackBarBehavior
+                                          .floating, // optional, makes it float
+                                  margin: const EdgeInsets.all(16),
+                                  content: Text(
+                                    taskProvider.errorMessage!,
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          backgroundColor: theme.colorScheme.primary,
+                        );
+                      },
+                    ),
+                  const SizedBox(height: 20),
+                  if (widget.task.files != null)
+                    Text(
+                      "Attachment",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        height: 1.0,
+                        letterSpacing: -0.3,
+                        color: AppColors.black000, //const Color(0xFF000108),
+                      ),
+                    ),
+
+                  if (widget.task.files != null &&
+                      widget.task.files!.any(
+                        (file) => file.fileType != "audios",
+                      ))
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final files =
+                            widget.task.files!
+                                .where((file) => file.fileType != "audios")
+                                .toList();
+                        int rowCount =
+                            (files.length / 2).ceil(); // 2 items per row
+                        double itemWidth =
+                            (constraints.maxWidth - 10) / 2; // spacing
+                        double gridHeight =
+                            rowCount * itemWidth + (rowCount - 1) * 10;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Grid for images/videos
+                            GridView.count(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 1,
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              children:
+                                  files.map<Widget>((file) {
+                                    bool isVideo = file.fileType == "videos";
+
+                                    return attachmentTile(
+                                      context,
+                                      file.file ?? "",
+                                      file.file?.split('/').last ?? "File",
+                                      isVideo: isVideo,
+                                      onTap: () {
+                                        if (isVideo && file.file != null) {
+                                          showGeneralDialog(
+                                            context: context,
+                                            barrierDismissible: true,
+                                            barrierLabel: "Dismiss",
+                                            barrierColor: Colors.black
+                                                .withOpacity(0.5),
+                                            pageBuilder:
+                                                (_, __, ___) => Center(
+                                                  child: NetworkVideoPlayer(
+                                                    videoUrl: file.file!,
+                                                  ),
+                                                ),
+                                          );
+                                        }
+                                      },
+                                    );
+                                  }).toList(), // ✅ type-safe List<Widget>
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // Audio files below
+                            if (widget.task.files!.any(
+                              (file) => file.fileType == "audios",
+                            ))
+                              Column(
+                                children:
+                                    widget.task.files!
+                                        .where(
+                                          (file) => file.fileType == "audios",
+                                        )
+                                        .map<Widget>(
+                                          (file) => Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 4,
+                                            ),
+                                            child: AudioMessagePlayer(
+                                              url: file.file ?? "",
+                                            ),
+                                          ),
+                                        )
+                                        .toList(), // ✅ type-safe List<Widget>
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+
                   const SizedBox(
-                    height: 10,
+                    height: 240,
                   ), // Add some padding below the button
                 ],
               ),

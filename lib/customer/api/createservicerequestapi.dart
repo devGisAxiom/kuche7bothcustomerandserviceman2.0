@@ -78,6 +78,7 @@ class ServiceRequestApi {
     required List<File> videos,
     required String note,
     required int idProduct,
+    required String serviceissue,
   }) async {
     http.StreamedResponse? streamedResponse;
 
@@ -97,6 +98,7 @@ class ServiceRequestApi {
       request.headers['Authorization'] = "Bearer $token";
       request.fields["note"] = note;
       request.fields["id_product"] = idProduct.toString();
+      request.fields["service_issue"] = serviceissue; // ✅ Add service issue
 
       // ✅ Add files with error handling for each file
       for (var img in images) {

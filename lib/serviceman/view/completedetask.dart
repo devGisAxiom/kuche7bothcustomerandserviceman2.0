@@ -342,7 +342,7 @@ class _CompletedTaskDetailviewState extends State<CompletedTaskDetailview> {
                                                         .image!
                                                         .isNotEmpty
                                                 ? NetworkImage(
-                                                  'https://kuche7.devcom.live/public/storage/${widget.task.fileTypes![0].image}',
+                                                  '${widget.task.fileTypes![0].image}',
                                                 )
                                                 : AssetImage('asset/key.png')
                                                     as ImageProvider, // Fallback to local image if no URL
@@ -376,7 +376,7 @@ class _CompletedTaskDetailviewState extends State<CompletedTaskDetailview> {
                                                 .image!
                                                 .isNotEmpty
                                         ? Image.network(
-                                          'https://kuche7.devcom.live/public/storage/${widget.task.fileTypes![0].image}',
+                                          '${widget.task.fileTypes![0].image}',
                                           fit: BoxFit.cover,
                                           loadingBuilder: (
                                             context,

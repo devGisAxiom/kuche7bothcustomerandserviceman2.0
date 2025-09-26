@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/utils/appcolor.dart';
+import 'package:flutter_application_1/customer/api/cancelapi.dart';
 import 'package:flutter_application_1/customer/model/servicelistmodel.dart';
+import 'package:flutter_application_1/customer/povider/themeprovider.dart';
 import 'package:flutter_application_1/customer/widget/attachmenttile.dart';
 import 'package:flutter_application_1/customer/widget/floatingvideoplayer.dart';
 import 'package:flutter_application_1/customer/widget/loginbutton.dart';
@@ -27,6 +29,8 @@ class RequestDetailDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final request = allRequests.firstWhere(
       (r) => r.id == requestId,
       orElse: () => Data(),
@@ -221,10 +225,51 @@ class RequestDetailDialog extends StatelessWidget {
                   ],
 
                   const SizedBox(height: 20), // space above button
-
+                  //PrimaryButton(label:'Cancel Request' , onPressed: () {  },)
                   PrimaryButton(
                     label: 'Cancel Request',
-                    onPressed: () {},
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder:
+                            (_) => PopUpCustom(
+                              cancelButtonColor: const Color.fromARGB(
+                                255,
+                                251,
+                                239,
+                                248,
+                              ),
+                              title: "Cancel Service Request",
+                              description:
+                                  "Are you sure you want to cancel this service request?",
+                              allowButtonText: "Yes",
+                              onCancel: () => Navigator.pop(context),
+                              onAllow: () async {
+                                final cancelProvider =
+                                    context.read<CancelProvider>();
+                                await cancelProvider.cancelRequest(requestId);
+
+                                Navigator.pop(context); // Close bottom sheet
+                                Navigator.pop(
+                                  context,
+                                  true,
+                                ); // Close main dialog
+
+                                // Show result snackbar
+                                final message =
+                                    cancelProvider.errorMessage ??
+                                    cancelProvider.cancelModel?.message ??
+                                    "Request cancelled";
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(message),
+                                    backgroundColor: Colors.black,
+                                  ),
+                                );
+                              },
+                            ),
+                      );
+                    },
                     backgroundColor: AppColors.grey7F,
                   ),
                 ],
@@ -266,147 +311,6 @@ class RequestDetailDialog extends StatelessWidget {
     );
   }
 }
-
-// class NetworkVideoPlayer extends StatefulWidget {
-//   final String videoUrl; // ✅ network video URL
-
-//   const NetworkVideoPlayer({super.key, required this.videoUrl});
-
-//   @override
-//   State<NetworkVideoPlayer> createState() => _NetworkVideoPlayerState();
-// }
-
-// class _NetworkVideoPlayerState extends State<NetworkVideoPlayer> {
-//   late VideoPlayerController _videoController;
-//   ChewieController? _chewieController;
-//   bool _isInitialized = false;
-//   bool _hasError = false;
-
-//   Offset position = const Offset(20, 100);
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _initVideo();
-//   }
-
-//   Future<void> _initVideo() async {
-//     try {
-//       _videoController = VideoPlayerController.networkUrl(
-//         Uri.parse(widget.videoUrl),
-//       );
-
-//       await _videoController.initialize();
-
-//       _chewieController = ChewieController(
-//         videoPlayerController: _videoController,
-//         autoPlay: true,
-//         looping: true,
-//         allowFullScreen: true,
-//         allowMuting: true,
-//         allowPlaybackSpeedChanging: true,
-//         materialProgressColors: ChewieProgressColors(
-//           playedColor: Colors.red,
-//           handleColor: Colors.redAccent,
-//           bufferedColor: Colors.grey,
-//           backgroundColor: Colors.white24,
-//         ),
-//       );
-
-//       setState(() => _isInitialized = true);
-//     } catch (e) {
-//       debugPrint("Video init error: $e");
-//       setState(() => _hasError = true);
-//     }
-//   }
-
-//   @override
-//   void dispose() {
-//     _videoController.dispose();
-//     _chewieController?.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     if (_hasError) {
-//       return const Center(
-//         child: Icon(Icons.error, color: Colors.red, size: 48),
-//       );
-//     }
-
-//     if (!_isInitialized || _chewieController == null) {
-//       return const Center(child: CircularProgressIndicator());
-//     }
-
-//     return Stack(
-//       children: [
-//         Positioned(
-//           left: position.dx,
-//           top: position.dy,
-//           child: Draggable(
-//             feedback: _buildPlayerUI(),
-//             childWhenDragging: Container(),
-//             onDragEnd: (details) {
-//               setState(() {
-//                 position = details.offset;
-//               });
-//             },
-//             child: _buildPlayerUI(),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildPlayerUI() {
-//     return Material(
-//       elevation: 8,
-//       borderRadius: BorderRadius.circular(12),
-//       child: Container(
-//         width: 280,
-//         height: 160,
-//         decoration: BoxDecoration(
-//           color: Colors.black,
-//           borderRadius: BorderRadius.circular(12),
-//         ),
-//         child: Stack(
-//           children: [
-//             ClipRRect(
-//               borderRadius: BorderRadius.circular(12),
-//               child: Chewie(controller: _chewieController!),
-//             ),
-//             Positioned(
-//               top: 4,
-//               left: 8,
-//               right: 8,
-//               child: Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   const Text(
-//                     "Network Video",
-//                     style: TextStyle(color: Colors.white, fontSize: 12),
-//                   ),
-//                   IconButton(
-//                     padding: EdgeInsets.zero,
-//                     icon: const Icon(
-//                       Icons.close,
-//                       color: Colors.white,
-//                       size: 20,
-//                     ),
-//                     onPressed: () {
-//                       Navigator.pop(context);
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class VideoPlayerProvider with ChangeNotifier {
   VideoPlayerController? _videoController;
@@ -614,5 +518,106 @@ class _NetworkVideoPlayerState extends State<NetworkVideoPlayer> {
     // Don't dispose the provider here as it might be used by other widgets
     // The provider will be disposed by the parent widget that created it
     super.dispose();
+  }
+}
+
+class PopUpCustom extends StatelessWidget {
+  final String title;
+  final String description;
+  final VoidCallback onCancel;
+  final VoidCallback onAllow;
+  final String allowButtonText;
+
+  // New optional color parameters
+  final Color? allowButtonColor;
+  final Color? allowTextColor;
+  final Color? cancelButtonColor;
+  final Color? cancelTextColor;
+
+  const PopUpCustom({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.onCancel,
+    required this.onAllow,
+    this.allowButtonText = "Allow",
+    this.allowButtonColor,
+    this.allowTextColor,
+    this.cancelButtonColor,
+    this.cancelTextColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 30, top: 20, left: 20, right: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(137, 0, 0, 0),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            description,
+            textAlign: TextAlign.start,
+            style: const TextStyle(fontSize: 14, color: Colors.black54),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: onAllow,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        allowButtonColor ??
+                        const Color.fromARGB(255, 27, 65, 30),
+                    foregroundColor: allowTextColor ?? Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(allowButtonText),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onCancel,
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: cancelButtonColor ?? Colors.transparent,
+                    foregroundColor:
+                        cancelTextColor ?? const Color.fromARGB(255, 151, 9, 9),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color:
+                            cancelTextColor ??
+                            const Color.fromARGB(255, 151, 9, 9),
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color:
+                          cancelTextColor ??
+                          const Color.fromARGB(255, 151, 9, 9),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

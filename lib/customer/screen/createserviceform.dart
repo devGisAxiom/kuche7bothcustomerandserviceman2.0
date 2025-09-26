@@ -87,6 +87,7 @@ class _CreateServiceFormState extends State<CreateServiceForm> {
   }
 
   final TextEditingController _noteController = TextEditingController();
+  final TextEditingController _noteController2 = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -140,7 +141,52 @@ class _CreateServiceFormState extends State<CreateServiceForm> {
                 ],
               ),
               const SizedBox(height: 10),
-              Text('Note', style: GoogleFonts.poppins(color: AppColors.black)),
+              Text(
+                'Service issue',
+                style: GoogleFonts.poppins(color: AppColors.black),
+              ),
+              const SizedBox(height: 5),
+              Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.greyShade300),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: TextField(
+                  style: TextStyle(color: Colors.black), // Add this line
+                  controller: _noteController2,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(8),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Text(
+              //   'Note(Issue in detail)',
+              //   style: GoogleFonts.poppins(color: AppColors.black),
+              // ),
+              RichText(
+                text: TextSpan(
+                  text: 'Note ', // Normal text
+                  style: GoogleFonts.poppins(
+                    color: AppColors.black,
+                    // fontSize: 16, // main size
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '(Issue in detail)', // smaller text
+                      style: GoogleFonts.poppins(
+                        color: AppColors.black,
+                        fontSize: 12, // smaller size
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               const SizedBox(height: 5),
               Container(
                 height: 80,
@@ -159,6 +205,7 @@ class _CreateServiceFormState extends State<CreateServiceForm> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 20),
               Text(
                 'Attachment',
@@ -423,6 +470,7 @@ class _CreateServiceFormState extends State<CreateServiceForm> {
               audios: audioFiles,
               videos: selectedVideos,
               idProduct: themeProvider.idProduct ?? 0, // 👈 added
+              serviceissue: _noteController2.text.trim(), // 👈 added
             );
 
             if (!mounted) return;
