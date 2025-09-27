@@ -1,69 +1,3 @@
-// import 'dart:convert';
-// import 'dart:io';
-
-// import 'package:flutter_application_1/core/storage/usepreference.dart';
-// import 'package:flutter_application_1/customer/model/createservicerequest.dart';
-// import 'package:http/http.dart' as http;
-
-// class ServiceRequestApi {
-//   static Future<CreateServiceRequest?> createService({
-//     required List<File> images,
-//     required List<File> audios,
-//     required List<File> videos,
-//     required String note,
-//     required int idProduct,
-//   }) async {
-//     try {
-//       String? token = await UserPreferences.getToken();
-//       if (token == null) {
-//         print("⚠️ No token found!");
-//         return null;
-//       }
-
-//       var uri = Uri.parse(
-//         "https://pms.gisaxiom.com/api/customers/service/create",
-//       );
-//       var request = http.MultipartRequest("POST", uri);
-
-//       // ✅ Add token
-//       request.headers['Authorization'] = "Bearer $token";
-//       request.fields["note"] = note;
-//       request.fields["id_product"] = idProduct.toString();
-
-//       // ✅ Add files
-//       for (var img in images) {
-//         request.files.add(
-//           await http.MultipartFile.fromPath("images[]", img.path),
-//         );
-//       }
-//       for (var aud in audios) {
-//         request.files.add(
-//           await http.MultipartFile.fromPath("audios[]", aud.path),
-//         );
-//       }
-//       for (var vid in videos) {
-//         request.files.add(
-//           await http.MultipartFile.fromPath("videos[]", vid.path),
-//         );
-//       }
-
-//       // ✅ Send
-//       var streamedResponse = await request.send();
-//       var responseString = await streamedResponse.stream.bytesToString();
-//       var jsonData = json.decode(responseString);
-
-//       if (streamedResponse.statusCode == 200) {
-//         print("✅ Service created: $jsonData");
-//         return CreateServiceRequest.fromJson(jsonData);
-//       } else {
-//         return CreateServiceRequest.fromJson(jsonData);
-//       }
-//     } catch (e) {
-//       print("❌ Error: $e");
-//       return null;
-//     }
-//   }
-// }
 import 'dart:convert';
 import 'dart:io';
 
@@ -136,13 +70,21 @@ class ServiceRequestApi {
       var responseString = await streamedResponse.stream.bytesToString();
       var jsonData = json.decode(responseString);
 
+      // if (streamedResponse.statusCode == 200) {
+      //   print("✅ Service created successfully");
+      //   return CreateServiceRequest.fromJson(jsonData);
+      // } else {
+      //   print("❌ Server error: ${streamedResponse.statusCode}");
+      //   print("❌ Response: $responseString");
+      //   return CreateServiceRequest.fromJson(jsonData);
+      // }
       if (streamedResponse.statusCode == 200) {
-        print("✅ Service created successfully");
         return CreateServiceRequest.fromJson(jsonData);
+      } else if (streamedResponse.statusCode == 401) {
+        // ❌ Don’t use ScaffoldMessenger here
+        throw UnauthorizedException("Session expired");
       } else {
-        print("❌ Server error: ${streamedResponse.statusCode}");
-        print("❌ Response: $responseString");
-        return CreateServiceRequest.fromJson(jsonData);
+        throw Exception("Server error: ${streamedResponse.statusCode}");
       }
     } catch (e) {
       print("❌ Error: $e");
@@ -154,4 +96,9 @@ class ServiceRequestApi {
       return null;
     }
   }
+}
+
+class UnauthorizedException implements Exception {
+  final String message;
+  UnauthorizedException(this.message);
 }

@@ -9,11 +9,11 @@ class ProfileProvider with ChangeNotifier {
   CustomerProfile? get profile => _profile;
   bool get isLoading => _isLoading;
 
-  Future<void> loadProfile() async {
+  Future<void> loadProfile(BuildContext context) async {
     _isLoading = true;
     notifyListeners();
 
-    _profile = await CustomerProfileApi.fetchProfile();
+    _profile = await CustomerProfileApi.fetchProfile(context);
 
     _isLoading = false;
     notifyListeners();

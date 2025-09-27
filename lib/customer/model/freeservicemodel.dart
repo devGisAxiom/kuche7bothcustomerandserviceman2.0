@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/core/utils/sessionmanager.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -60,7 +61,10 @@ class Data {
 }
 
 class FreeServiceService {
-  static Future<FreeServiceModel?> fetchFreeServices(int idProduct) async {
+  static Future<FreeServiceModel?> fetchFreeServices(
+    int idProduct,
+    context,
+  ) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
@@ -81,6 +85,20 @@ class FreeServiceService {
         final jsonBody = jsonDecode(response.body);
         print(idProduct);
         return FreeServiceModel.fromJson(jsonBody);
+      } else if (response.statusCode == 401) {
+        print("Error: 401 Unauthorized - Token expired or invalid.");
+        // return null; // Return null to signal a 401 error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Session expired. Please log in again.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.redAccent,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        SessionManager.logout(context);
       } else {
         throw Exception("Failed to load: ${response.statusCode}");
       }
@@ -122,14 +140,17 @@ class FreeServiceProvider with ChangeNotifier {
   FreeServiceModel? freeService;
   String? errorMessage;
 
-  Future<void> loadFreeServices(int idProduct) async {
+  Future<void> loadFreeServices(int idProduct, BuildContext context) async {
     isLoading = true;
     errorMessage = null;
     freeService = null;
     notifyListeners();
 
     try {
-      freeService = await FreeServiceService.fetchFreeServices(idProduct);
+      freeService = await FreeServiceService.fetchFreeServices(
+        idProduct,
+        context,
+      );
     } catch (e) {
       errorMessage = e.toString();
     }

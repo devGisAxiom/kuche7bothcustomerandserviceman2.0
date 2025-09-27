@@ -28,15 +28,37 @@ class _ServiceState extends State<Service> {
   bool showOpenRequests =
       true; // State to toggle between open and completed requests
   bool showForm = false; // State to show/hide the service request form
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey<CommonAppBarState> _commonAppBarKey = GlobalKey();
+  late VoidCallback _scrollListener;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   // Fetch data after first frame
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     _loadData();
+  //   });
+  // }
   @override
   void initState() {
     super.initState();
 
-    // Fetch data after first frame
+    // Add scroll listener to hide tooltip
+    _scrollListener = () => _commonAppBarKey.currentState?.hideTooltip();
+    _scrollController.addListener(_scrollListener);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   // Fetch both providers in parallel
@@ -46,11 +68,11 @@ class _ServiceState extends State<Service> {
         Provider.of<ServiceRequestListProvider>(
           context,
           listen: false,
-        ).fetchServiceRequests(),
+        ).fetchServiceRequests(context),
         Provider.of<CompletedTaskProvider>(
           context,
           listen: false,
-        ).loadCompletedTasks(),
+        ).loadCompletedTasks(context),
       ]);
     } catch (error) {
       print('Error loading data: $error');
@@ -72,10 +94,12 @@ class _ServiceState extends State<Service> {
         backgroundColor: theme.colorScheme.secondary,
         child: CustomScrollView(
           // Use CustomScrollView for complex scroll behaviors
+          controller: _scrollController,
           slivers: [
             // The CommonAppBar as a Sliver
             SliverToBoxAdapter(
               child: CommonAppBar(
+                key: _commonAppBarKey,
                 onBack: () {
                   widget.onTabChange(0); // 👈 Go to Home tab
                 },

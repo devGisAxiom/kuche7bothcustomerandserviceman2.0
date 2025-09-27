@@ -86,6 +86,7 @@ class _CalendarJobViewState extends State<CalendarJobView> {
         endTime: date.add(Duration(hours: 1)), // default 1 hour
         location: data.location ?? "-",
         status: data.taskType ?? "Pending",
+        stages: data.taskStatus ?? "",
       );
     }).toList();
   }
@@ -221,24 +222,26 @@ class _CalendarJobViewState extends State<CalendarJobView> {
                                     ),
                                   ),
                                   SizedBox(width: 6),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade50,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      // DateFormat('jm').format(job.startTime),
-                                      job.status,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.blue,
+                                  if (job.stages != null &&
+                                      job.stages.isNotEmpty)
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.shade50,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        // DateFormat('jm').format(job.startTime),
+                                        job.stages,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.blue,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               ),
                               subtitle: Column(
@@ -268,6 +271,18 @@ class _CalendarJobViewState extends State<CalendarJobView> {
                                       Expanded(child: Text(job.location)),
                                     ],
                                   ),
+                                  SizedBox(height: 2),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.build_circle_rounded,
+                                        size: 16,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Expanded(child: Text(job.status)),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),
@@ -290,6 +305,7 @@ class ServiceJob {
   final DateTime endTime;
   final String location;
   final String status;
+  final String stages;
 
   ServiceJob({
     required this.clientName,
@@ -299,6 +315,7 @@ class ServiceJob {
     required this.endTime,
     required this.location,
     required this.status,
+    required this.stages,
   });
 }
 

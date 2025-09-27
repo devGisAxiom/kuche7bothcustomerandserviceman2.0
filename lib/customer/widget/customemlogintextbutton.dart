@@ -57,7 +57,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           keyboardType: widget.keyboardType,
           obscureText: widget.obscureText, // keep obscuring, just no toggle
           textAlignVertical: TextAlignVertical.center,
-          style: const TextStyle(fontSize: 14),
+          style: const TextStyle(fontSize: 14, color: Colors.black),
           decoration: InputDecoration(
             hintText: widget.hintText,
             hintStyle: const TextStyle(

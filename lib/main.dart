@@ -70,7 +70,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: theme,
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(), // Home with Drawer
+      home: SplashScreen(), // Home with Drawer
     );
   }
 }
+
+// import 'package:flutter/material.dart';

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/core/utils/sessionmanager.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,6 +14,7 @@ class TaskProvider with ChangeNotifier {
   Map<String, dynamic>? get response => _response;
 
   Future<void> acceptTask({
+    required BuildContext context,
     required String taskId,
     required String status,
     String? note,
@@ -53,6 +55,8 @@ class TaskProvider with ChangeNotifier {
 
       if (res.statusCode == 200) {
         _response = jsonDecode(res.body);
+      } else if (res.statusCode == 401) {
+        SessionManager.logout(context);
       } else {
         _errorMessage = "Failed: ${res.statusCode} - ${res.body}";
       }

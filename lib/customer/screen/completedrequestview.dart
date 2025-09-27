@@ -453,6 +453,7 @@ class _CompletedrequestViewState extends State<CompletedrequestView> {
                                     : currentRating.toString();
 
                             await taskProvider.acceptTask(
+                              context: context,
                               taskId: widget.task?.taskId?.toString() ?? "",
                               status: tick.toString(),
                               note: note,

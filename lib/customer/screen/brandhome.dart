@@ -9,8 +9,8 @@ import 'package:provider/provider.dart';
 
 class BrandHome extends StatelessWidget {
   final void Function(int) onTabChange;
-  const BrandHome({super.key, required this.onTabChange});
-
+  BrandHome({super.key, required this.onTabChange});
+  final GlobalKey<CommonAppBarState> _commonAppBarKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     //final themeProvider = Provider.of<ThemeProvider>(context);
@@ -26,6 +26,7 @@ class BrandHome extends StatelessWidget {
 
           // ),
           CommonAppBar(
+            key: _commonAppBarKey,
             title: themeProvider.brandName ?? "Default Brand",
             backgroundColor:
                 theme.colorScheme.primary, //const Color(0xFFEE262D),
@@ -35,6 +36,7 @@ class BrandHome extends StatelessWidget {
                     ? Colors.white
                     : theme.colorScheme.secondary,
             arrowcolor: theme.colorScheme.primary,
+
             //arrowcolor: theme.colorScheme.primary,
           ),
           Expanded(
@@ -71,6 +73,7 @@ class BrandHome extends StatelessWidget {
                             label: 'Free Service',
                             onTap: () {
                               // onTabChange(1); // You can customize this
+                              _commonAppBarKey.currentState?.hideTooltip();
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => FreeService(),

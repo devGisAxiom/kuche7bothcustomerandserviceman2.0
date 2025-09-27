@@ -4,6 +4,7 @@ import 'dart:io';
 // import 'package:chewie/chewie.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/core/utils/sessionmanager.dart';
 // import 'package:flutter_application_1/core/storage/usepreference.dart';
 // import 'package:flutter_application_1/customer/api/createservicerequestapi.dart';
 // import 'package:flutter_application_1/customer/model/createservicerequest.dart';
@@ -477,6 +478,17 @@ class _CreateServiceFormState extends State<CreateServiceForm> {
 
             // Hide loading snackbar
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            // Handle unauthorized (401)
+            if (provider.unauthorized) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("⚠️ Session expired. Please log in again."),
+                  backgroundColor: Colors.redAccent,
+                ),
+              );
+              SessionManager.logout(context); // 👈 redirect to login
+              return;
+            }
 
             // ✅ Handle response
             if (provider.response != null &&
