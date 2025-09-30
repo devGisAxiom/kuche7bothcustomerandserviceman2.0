@@ -14,11 +14,11 @@ class ActiveServiceProviders with ChangeNotifier {
   bool get isLoading => _isLoading;
   ActiveServiceandTodaysTask? get activeServiceRequest => _activeServiceRequest;
 
-  Future<void> fetchActiveServiceRequests(String token) async {
+  Future<void> fetchActiveServiceRequests(String token,BuildContext context) async {
     _isLoading = true;
     notifyListeners();
 
-    _activeServiceRequest = await _apiService.fetchActiveServiceRequests(token);
+    _activeServiceRequest = await _apiService.fetchActiveServiceRequests(token,context);
 
     _isLoading = false;
     notifyListeners();

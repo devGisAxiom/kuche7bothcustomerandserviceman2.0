@@ -30,7 +30,10 @@ class _HomePageState extends State<HomePage> {
         Provider.of<ServiceManProviderProfile>(
           context,
           listen: false,
-        ).fetchProfile(bearerToken); // Use bearerToken instead of token
+        ).fetchProfile(
+          bearerToken,
+          context,
+        ); // Use bearerToken instead of token
       }
     });
   }

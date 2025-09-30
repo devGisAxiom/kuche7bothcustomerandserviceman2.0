@@ -1,166 +1,3 @@
-// import 'package:design/serviceman/api/acceptandrejecttask.dart';
-// import 'package:design/serviceman/view/clientdetailpage.dart';
-// import 'package:design/serviceman/provider/activeserviceprovider.dart';
-// import 'package:design/test.dart';
-// import 'package:design/serviceman/widget/todayscard.dart';
-// import 'package:flutter/material.dart';
-// import 'package:lottie/lottie.dart';
-// import 'package:provider/provider.dart';
-
-// class ActiveService extends StatefulWidget {
-//   const ActiveService({super.key});
-
-//   @override
-//   State<ActiveService> createState() => _ActiveServiceState();
-// }
-
-// class _ActiveServiceState extends State<ActiveService> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       final provider =
-//           Provider.of<ActiveServiceProvider>(context, listen: false);
-//       provider.fetchActiveServiceRequests(token); // Replace with actual token
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Row(
-//           children: [
-//             Icon(
-//               Icons.home_repair_service_rounded,
-//             ),
-//             SizedBox(width: 18),
-//             Text(
-//               "Active Service",
-//               style: TextStyle(fontWeight: FontWeight.w300),
-//             ),
-//           ],
-//         ),
-//       ),
-//       body:
-//           Consumer<ActiveServiceProvider>(builder: (context, provider, child) {
-//         // Handle loading state
-//         if (provider.isLoading) {
-//           return Center(child: CircularProgressIndicator());
-//         }
-
-//         // Check for null or empty data
-//         if (provider.activeServiceRequest == null ||
-//             provider.activeServiceRequest!.data == null ||
-//             provider.activeServiceRequest!.data!.isEmpty) {
-//           return Center(
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 // Lottie animation with specified width and height for a smaller size
-//                 Lottie.asset(
-//                   'asset/Animation.json',
-//                   width: 300, // Set the width of the animation
-//                   height: 300, // Set the height of the animation
-//                   fit: BoxFit.cover, // Adjust the fit if needed
-//                 ),
-//                 const SizedBox(
-//                     height: 20), // Space between the animation and text
-//                 const Text(
-//                   "No Task found !",
-//                   style: TextStyle(
-//                       fontSize: 14,
-//                       color: Color.fromARGB(
-//                           255, 120, 113, 113)), // Smaller font size
-//                 ),
-//               ],
-//             ),
-//           );
-//         }
-
-//         // If data is available, return the list
-//         return ListView.builder(
-//           itemCount: provider.activeServiceRequest!.data!.length,
-//           itemBuilder: (context, index) {
-//             List<String> materials = [];
-//             List<String> customer = [];
-//             var task = provider.activeServiceRequest!.data![index];
-//             int taskPhase = task.subTasks != null && task.subTasks!.isNotEmpty
-//                 ? task.subTasks![0].taskPhase ?? 0
-//                 : 0;
-//             String taskdate = task.subTasks != null && task.subTasks!.isNotEmpty
-//                 ? (task.subTasks![0].taskDate?.toString() ??
-//                     "No Date Available")
-//                 : "No Date Available";
-
-//             if (task.taskType == 'Installation' &&
-//                 task.subTasks != null &&
-//                 task.subTasks!.isNotEmpty) {
-//               materials = task.subTasks![0].materials
-//                       ?.map((material) => material.name ?? "")
-//                       .toList() ??
-//                   [];
-//               print("INSTALLION MATERIALS:$materials");
-//             }
-
-//             if (task.taskType == 'Service' &&
-//                 materials.isEmpty &&
-//                 task.materials != null) {
-//               materials = task.materials!
-//                   .map((material) => material.name ?? "")
-//                   .toList();
-//               print("Service MATERIALS:$materials ");
-//             }
-
-//             return Todaystaskcard(
-//               id: task.id ?? 0,
-//               taskType: task.taskType ?? "",
-//               taskphase: taskPhase,
-//               taskdate: task.taskDate ?? "",
-//               materials: materials,
-//               taskstatus: task.taskStatus ?? "",
-//               onAccept: () async {
-//                 final taskService = TaskService();
-//                 await taskService.acceptTask(
-//                   task.id ?? 0,
-//                 );
-//                 Provider.of<ActiveServiceProvider>(context, listen: false)
-//                     .fetchActiveServiceRequests(token);
-//               },
-//               onReject: () async {
-//                 final taskService = TaskService();
-//                 await taskService.rejectTask(
-//                   task.id ?? 0,
-//                 );
-//                 Provider.of<ActiveServiceProvider>(context, listen: false)
-//                     .fetchActiveServiceRequests(token);
-//               },
-//               customername: task.customer!.name ?? "",
-//               customeremail: task.customer!.email ?? '',
-//               customerPhone: task.customer!.contactNumber ?? "",
-//               location: task.customer!.location ?? '',
-//               locationlink: task.taskGoogleLink ?? '',
-//               onTapWhenAccepted: () {
-//                 Navigator.of(context).push(MaterialPageRoute(
-//                   builder: (context) => WorkDetails(
-//                     task: task,
-//                     pagename: 'Active',
-//                   ),
-//                 ));
-//               },
-//             );
-//           },
-//         );
-//       }),
-//     );
-//   }
-// }
-
-// import 'package:design/serviceman/api/acceptandrejecttask.dart';
-// import 'package:design/serviceman/view/clientdetailpage.dart';
-// import 'package:design/serviceman/provider/activeserviceprovider.dart';
-// import 'package:design/test.dart';
-// import 'package:design/serviceman/widget/todayscard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/serviceman/api/acceptandrejecttask.dart';
 import 'package:flutter_application_1/serviceman/provider/activeserviceprovider.dart';
@@ -196,6 +33,7 @@ class _ActiveServiceState extends State<ActiveService> {
     //remove this token after testing //////////////////////////////
     await provider.fetchActiveServiceRequests(
       token!,
+      context,
     ); // Replace with actual token
 
     if (mounted) {
@@ -299,12 +137,12 @@ class _ActiveServiceState extends State<ActiveService> {
                 taskstatus: task.taskStatus ?? "",
                 onAccept: () async {
                   final taskService = TaskService();
-                  await taskService.acceptTask(task.id ?? 0);
+                  await taskService.acceptTask(task.id ?? 0, context);
                   await _loadData(silent: true); // Silent refresh
                 },
                 onReject: () async {
                   final taskService = TaskService();
-                  await taskService.rejectTask(task.id ?? 0);
+                  await taskService.rejectTask(task.id ?? 0, context);
                   await _loadData(silent: true); // Silent refresh
                 },
                 customername: task.customer!.name ?? "",

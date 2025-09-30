@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/customer/screen/login.dart';
-import 'package:flutter_application_1/serviceman/view/test.dart';
+import 'package:flutter_application_1/core/splash/splashscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // adjust path
 

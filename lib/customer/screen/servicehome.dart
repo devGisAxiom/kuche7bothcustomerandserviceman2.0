@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/customer/model/completedtaskmodel.dart';
 import 'package:flutter_application_1/customer/model/servicelistmodel.dart';
+import 'package:flutter_application_1/customer/povider/completedtaskprovider.dart';
 import 'package:flutter_application_1/customer/povider/servicerequestlistprovider.dart';
 import 'package:flutter_application_1/customer/povider/themeprovider.dart';
 import 'package:flutter_application_1/customer/screen/requestdetaildailog.dart';

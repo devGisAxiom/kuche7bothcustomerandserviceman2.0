@@ -13,13 +13,13 @@ class ServiceManProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<void> fetchCompletedTasks(String token) async {
+  Future<void> fetchCompletedTasks(String token,BuildContext context) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _completedTask = await ServicemanCompletedlistApi.fetchCompletedTasks(token);
+      _completedTask = await ServicemanCompletedlistApi.fetchCompletedTasks(token,context);
     } catch (error) {
       _errorMessage = error.toString();
     }

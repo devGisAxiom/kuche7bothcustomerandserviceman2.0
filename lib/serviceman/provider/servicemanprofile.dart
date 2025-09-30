@@ -15,12 +15,12 @@ class ServiceManProviderProfile with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<void> fetchProfile(String token) async {
+  Future<void> fetchProfile(String token,BuildContext context) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
-    final response = await _api.fetchServiceManProfile(token);
+    final response = await _api.fetchServiceManProfile(token,context);
     if (response != null) {
       _serviceManProfile = response;
     } else {

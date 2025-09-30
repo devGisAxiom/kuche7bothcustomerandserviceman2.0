@@ -579,6 +579,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/serviceman/api/completephase1.dart';
 import 'package:flutter_application_1/serviceman/api/completephase2.dart';
 import 'package:flutter_application_1/serviceman/model/activeservicemodel.dart';
+import 'package:flutter_application_1/serviceman/provider/filetypeprovider.dart'
+    as file_ty;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
